@@ -1,0 +1,53 @@
+from django.urls import path
+from . import views
+from django.contrib.auth import views as auth_views
+from django.views.generic.base import RedirectView
+
+
+urlpatterns = [
+    #favivon
+    path('favicon.ico', RedirectView.as_view(url='static/favicon.ico')),
+    path("", views.home, name="home" ),
+    path("logout/", views.logout_view, name="logout"),
+    #path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path("home/", views.home, name="home"),
+    path("create-programm/", views.create_programm, name="create-user"),
+    path("home/create-programm/", views.create_programm, name="create-user"),
+    path("create-customer/", views.create_customer, name="create-customer"),
+    path("home/create-customer/", views.create_customer, name="create-customer"),
+    path("home/edit-programm/create-customer/", views.create_customer, name="edit-programm"),
+    path("edit-programm/create-customer/", views.create_customer, name="edit-programm"),
+    path("home/delete-kursprogramm/<int:id>/", views.delete_kursprogramm, name= "delete-program,"),
+    path("delete-kursprogramm/<int:id>/", views.delete_kursprogramm, name= "delete-program"),
+    path("home/edit-programm/<int:id>", views.edit_programm, name="edit-programm"),
+    path("edit-programm/<int:id>", views.edit_programm, name="edit-programm"),
+    path("home/edit-programm/edit-user-workout/", views.edit_programm_workout, name="edit-user"),
+    path("edit-programm/edit-user-workout/", views.edit_programm_workout, name="edit-user"),
+    path("home/edit-programm/delete-user-workout/", views.delete_user_exercise, name="edit-user"),
+    path("edit-programm/delete-user-workout/", views.delete_user_exercise, name="edit-user"),
+    path("home/edit-programm/add-exercises/<int:id>/", views.add_exercises, name="add-exercises"),
+    path("edit-programm/add-exercises/<int:id>/", views.add_exercises, name="add-exercises"),
+    path("home/edit-programm/add-exercises/<int:first>/<int:second>/", views.add_exercises, name="add-exercises"),
+    path("edit-programm/add-exercises/<int:first>/<int:second>/", views.add_exercises, name="add-exercises"),
+    path("laxout/show-login-code/<str:logintoken>/", views.display_login_code, name="show-login-code"),
+    path("home/edit-programm/post-user-instruction/<int:id>/", views.post_user_instruction, name="edit-user"),
+    path("edit-programm/post-user-instruction/<int:id>/", views.post_user_instruction, name="edit-user"),
+    path("new-exercise/", views.create_exercise, name="new-exercise"),
+    path("home/new-exercise/", views.create_exercise, name="new-exercise"),
+    path("home/trigger-admin-power", views.admin_power, name="home"),
+    path("trigger-admin-power", views.admin_power, name="home"),
+    path("home/edit-programm/<int:id>/move-up/", views.move_up, name="edit-user"),
+    path("home/edit-programm/<int:id>/move-down/", views.move_down, name="edit-user"),
+    path("edit-programm/<int:id>/move-down/", views.move_down, name="edit-user"),
+    path("edit-programm/<int:id>/move-up/", views.move_up, name="edit-user"),
+    path("home/edit-programm/post-user-instruction-int/", views.set_instruction_int, name="edit-user"),
+    path("edit-programm/post-user-instruction-int/", views.set_instruction_int, name="edit-user"),
+    path("chats/", views.chats, name="chats"),
+    path("home/chats", views.chats, name="chats"),
+    path("home/chats/<int:id>/", views.personal_chat, name="personal-chat"),
+    path("chats/<int:id>/", views.personal_chat, name="personal-chat"), 
+    path("home/chats/<int:id>/sendmessage/", views.post_message, name="personal-chat"),
+    path("chats/<int:id>/sendmessage/", views.post_message, name="personal-chat"),
+    path("home/chats/<int:id>/set-admin-has-seen/", views.admin_has_seen, name="personal-chat"),
+    path("chats/<int:id>/set-admin-has-seen/", views.admin_has_seen, name="personal-chat"),    
+]

@@ -1,0 +1,114 @@
+{% extends 'laxout_app/main.html' %}
+{% block praxisname %}Kunden Abrechnen{% endblock praxisname %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .submit_button {
+        height: 50px;
+        width: 240px;
+        border-radius: 10px;
+        background-color: rgb(242, 75, 19);
+        color: white;
+        margin-left: 0px;
+        cursor: pointer;
+        border: none;
+        margin-top: 25px;
+        font-size: 20px;
+    }
+</style>
+<div style="padding-left: 45px; width: 400px;">
+    <form method="post" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="form-group" style="display: flex; flex-direction: row; align-items: center; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label for="vorname">Vorname</label>
+                <input type="text" id="vorname" name="vorname" class="form-control" required>
+            </div>
+            <div style="flex: 1; margin-left: 20px;">
+                <label for="nachname">Nachname</label>
+                <input type="text" id="nachname" name="nachname" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: row; align-items: center; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label for="straße">Straße</label>
+                <input type="text" id="straße" name="straße" class="form-control" required>
+            </div>
+            <div style="flex: 1; margin-left: 20px;">
+                <label for="hausnummer">Hausnummer</label>
+                <input type="number" id="hausnummer" name="hausnummer" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 0px;">
+            <label for="email">Email-Adresse</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="stadt">Stadt</label>
+            <input type="text" id="stadt" name="stadt" class="form-control" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="postleitzahl">Postleitzahl</label>
+            <input type="number" id="postleitzahl" name="postleitzahl" class="form-control" required>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <div class="form-group">
+                <label for="kurs">Kurs wählen</label>
+                <select id="kurs" name="kurs" class="form-control" required>
+                    {% for kurs in programm_list %}
+                    <option value="{{ kurs }}">{{ kurs }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="selected_kurs" id="selected_kurs">
+                <div style="height: 30px;"></div>
+            </div>
+        </div>
+
+        <button type="button" class="submit_button" onclick="submitForm()">Kunden Abrechnen</button>
+    </form>
+</div>
+
+<script>
+    function validateForm() {
+        var requiredFields = document.querySelectorAll('input[required], select[required]');
+        var alertshown = false;
+
+        for (var i = 0; i < requiredFields.length; i++) {
+            if (requiredFields[i].value.trim() === '') {
+                if (!alertshown) {
+                    alert('Bitte füllen Sie alle Pflichtfelder aus.');
+                }
+                alertshown = true;
+                requiredFields[i].focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    window.onload = function () {
+        var kursDropdown = document.getElementById("kurs");
+        var selectedKursInput = document.getElementById("selected_kurs");
+
+        kursDropdown.addEventListener("change", function () {
+            selectedKursInput.value = this.value;
+        });
+    };
+
+    function submitForm() {
+        var kursDropdown = document.getElementById("kurs");
+        var selectedKursInput = document.getElementById("selected_kurs");
+
+        selectedKursInput.value = kursDropdown.value;
+
+        if (validateForm()) {
+            document.getElementsByTagName("form")[0].submit();
+        }
+    }
+</script>
+{% endblock content %}
