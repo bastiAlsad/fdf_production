@@ -102,9 +102,9 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'dashboardlaxout$database',
-#         'USER': 'dashboardlaxout',
-#         'PASSWORD': '?IScbaTr9a!%',
+#         'NAME': 'fdfsoftware$fdfdatabase',
+#         'USER': 'fdfsoftware',
+#         'PASSWORD': '!BidkMaG24,5nE!',
 #         'HOST': 'dashboardlaxout.mysql.eu.pythonanywhere-services.com',
 #         'PORT': '',
 #     }
