@@ -291,8 +291,8 @@ def send_user_welcome_email(
     # Dev
     # D:/DEV/laxout_backend_development/laxout/laxout_app/leistungsnachweise/
     print(f"Current billing Id {current_billing_id}")
-    input_pdf_path = "D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_vorlage.pdf"  # Passe den Pfad zur vorhandenen PDF-Datei an D:/DEV/laxout_backend_development/laxout/laxout_app/leistungsnachweise/leistungsnachweis
-    output_pdf_path = f"D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"  # Passe den Pfad für die neu erstellte PDF-Datei an
+    input_pdf_path = "/home/fdfdashboard/fdf_production/fdf_app/leistungsnachweise/leistungsnachweis_vorlage.pdf"  # Passe den Pfad zur vorhandenen PDF-Datei an D:/DEV/laxout_backend_development/laxout/laxout_app/leistungsnachweise/leistungsnachweis
+    output_pdf_path = f"/home/fdfdashboard/fdf_production/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"  # Passe den Pfad für die neu erstellte PDF-Datei an
     pdf.modifyPdf(
         input_pdf_path,
         output_pdf_path,
@@ -305,7 +305,7 @@ def send_user_welcome_email(
         postleitzahl,
     )
     # Pfad zur PDF-Datei
-    pdf_attachment_path = f"D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"
+    pdf_attachment_path = f"/home/fdfdashboard/fdf_production/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"
 
     # Hinzufügen der PDF-Datei als Anhang
     with open(pdf_attachment_path, "rb") as pdf_attachment:
