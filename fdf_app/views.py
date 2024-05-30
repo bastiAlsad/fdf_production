@@ -152,7 +152,9 @@ def set_exercises_user(user_id, predicted_exercises):
 
 
 # anpassen
-def send_user_welcome_email(email, vorname, nachname, straße, hausnummer, stadt, postleitzahl, kurs ):
+def send_user_welcome_email(
+    email, vorname, nachname, straße, hausnummer, stadt, postleitzahl, kurs
+):
     # SMTP-Verbindungsinformationen
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
@@ -164,7 +166,6 @@ def send_user_welcome_email(email, vorname, nachname, straße, hausnummer, stadt
     receiver_email = email
     subject = "Herzlich Willkommen"
     link = kurs
-    
 
     # HTML-Inhalt der E-Mail
     html_template = Template(
@@ -292,7 +293,17 @@ def send_user_welcome_email(email, vorname, nachname, straße, hausnummer, stadt
     print(f"Current billing Id {current_billing_id}")
     input_pdf_path = "D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_vorlage.pdf"  # Passe den Pfad zur vorhandenen PDF-Datei an D:/DEV/laxout_backend_development/laxout/laxout_app/leistungsnachweise/leistungsnachweis
     output_pdf_path = f"D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"  # Passe den Pfad für die neu erstellte PDF-Datei an
-    pdf.modifyPdf(input_pdf_path, output_pdf_path, current_billing_id, vorname, nachname, straße, hausnummer, stadt, postleitzahl)
+    pdf.modifyPdf(
+        input_pdf_path,
+        output_pdf_path,
+        current_billing_id,
+        vorname,
+        nachname,
+        straße,
+        hausnummer,
+        stadt,
+        postleitzahl,
+    )
     # Pfad zur PDF-Datei
     pdf_attachment_path = f"D:/fdf/fdf_django/fdf/fdf_app/leistungsnachweise/leistungsnachweis_{current_billing_id}.pdf"
 
@@ -421,12 +432,14 @@ def create_customer(request):
 
         print(f"Kurs String:{kurs_string}")
 
-        selected_programm = models.Kursprogramm.objects.get(name = kurs_string)
+        selected_programm = models.Kursprogramm.objects.get(name=kurs_string)
         if selected_programm == None:
             print("SCheiße")
         kurs = selected_programm.programm_number
         print(f"Kurs String:{kurs}")
-        send_user_welcome_email(email, vorname, nachname, straße, hausnummer, stadt, postleitzahl, kurs )
+        send_user_welcome_email(
+            email, vorname, nachname, straße, hausnummer, stadt, postleitzahl, kurs
+        )
 
         return redirect("/home")
     else:
@@ -513,16 +526,16 @@ def edit_programm(request, id=None):
     ###skip logik###
 
     current_exercises = programm.exercises.all()
-    if programm.note != "":
-        old_training_data = models.AiTrainingData.objects.filter(
-            created_for=programm.id
-        )
-        for i in old_training_data:
-            i.related_exercises.all().delete()
-        old_training_data.delete()
-        ai_training_data = models.AiTrainingData.objects.create(
-            illness=programm.note, created_by=request.user.id, created_for=programm.id
-        )
+    # if programm.note != "":
+    #     old_training_data = models.AiTrainingData.objects.filter(
+    #         created_for=programm.id
+    #     )
+    #     for i in old_training_data:
+    #         i.related_exercises.all().delete()
+    #     old_training_data.delete()
+    #     ai_training_data = models.AiTrainingData.objects.create(
+    #         illness=programm.note, created_by=request.user.id, created_for=programm.id
+    #     )
 
     current_order_objects = models.Laxout_Exercise_Order_For_User.objects.filter(
         laxout_user_id=id
@@ -565,13 +578,13 @@ def edit_programm(request, id=None):
         # print("RELEVANT ERROR ID")
         # print(order.laxout_exercise_id)
         try:
-            ai_training_data.related_exercises.add(
-                models.AiExercise.objects.create(
-                    exercise_id=models.Laxout_Exercise.objects.get(
-                        id=order.laxout_exercise_id
-                    ).appId
-                )
-            )
+            # ai_training_data.related_exercises.add(
+            #     models.AiExercise.objects.create(
+            #         exercise_id=models.Laxout_Exercise.objects.get(
+            #             id=order.laxout_exercise_id
+            #         ).appId
+            #     )
+            # )
             exercise = models.Laxout_Exercise.objects.get(id=order.laxout_exercise_id)
             users_exercises_skipped.append(
                 ExercisesModel(
@@ -600,15 +613,26 @@ def edit_programm(request, id=None):
     for i in users_exercises_skipped:
         print(i.appId)
 
-    related_customers = models.LaxoutUser.objects.filter(belongs_to_programm_number = programm.programm_number)
+    related_customers = models.LaxoutUser.objects.filter(
+        belongs_to_programm_number=programm.programm_number
+    )
+    programm_list_obj = models.AiTrainingData.objects.all()
+    programm_list = []
+    for i in programm_list_obj:
+        if i.illness not in programm_list:
+            filterd_objects = programm_list_obj.filter(illness=i.illness)
+            item = filterd_objects.last()
+            print(item.illness)
+            programm_list.append(item.illness)
 
     context = {
         "related_customers": related_customers,
-        "customer_count":len(related_customers),
+        "customer_count": len(related_customers),
         "user": programm,
         "users": programm,
         "workouts": users_exercises_skipped,
         "int": programm.instruction_in_int,
+        "programm_list": programm_list,
     }
 
     return render(
@@ -1446,4 +1470,55 @@ def admin_has_seen(request, id=None):
     user = models.LaxoutUser.objects.get(id=id)
     user.admin_has_seen_chat = True
     user.save()
+    return HttpResponse("OK")
+
+
+@login_required(login_url="login")
+def update_exercises(request):
+    id = request.POST.get("id")
+    illness = request.POST.get("select")
+    ai_training_data = models.AiTrainingData.objects.filter(illness=illness).last()
+    kursprogramm = models.Kursprogramm.objects.get(id=id)
+    exercises = kursprogramm.exercises.all()
+    list_order_exercises = models.Laxout_Exercise_Order_For_User.objects.filter(
+            laxout_user_id=id
+        )
+    list_order_exercises.delete()
+    for i in exercises:
+        i.delete()
+    exercises = []
+    print(
+        f"ai_training_data.related_exercises.all():{len(ai_training_data.related_exercises.all())}"
+    )
+    if ai_training_data != None:
+        predicted_exercises_ids = []
+
+        for i in ai_training_data.related_exercises.all():
+            predicted_exercises_ids.append(i.exercise_id)
+
+        for i in predicted_exercises_ids:
+            # es wird geschaut, ob es schon eine Reihenfolge gibt
+            if i != 0 and i < len(models.Uebungen_Models.objects.all()):
+                exercise_to_add = models.Laxout_Exercise.objects.create(
+                    execution=models.Uebungen_Models.objects.get(id=i).execution,
+                    name=models.Uebungen_Models.objects.get(id=i).name,
+                    dauer=models.Uebungen_Models.objects.get(id=i).dauer,
+                    videoPath=models.Uebungen_Models.objects.get(id=i).videoPath,
+                    looping=models.Uebungen_Models.objects.get(id=i).looping,
+                    added=False,
+                    instruction="",
+                    timer=models.Uebungen_Models.objects.get(id=i).timer,
+                    required=models.Uebungen_Models.objects.get(id=i).required,
+                    imagePath=models.Uebungen_Models.objects.get(id=i).imagePath,
+                    appId=models.Uebungen_Models.objects.get(id=i).id,
+                    onlineVideoPath=models.Uebungen_Models.objects.get(
+                        id=i
+                    ).onlineVideoPath,
+                )
+                exercises.append(exercise_to_add)
+        for i in exercises:
+            print(i.id)
+            kursprogramm.exercises.add(i)
+        kursprogramm.save()
+
     return HttpResponse("OK")

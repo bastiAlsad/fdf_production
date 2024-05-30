@@ -608,10 +608,10 @@
 <script>
     const currentPath = window.location.pathname;
 
-    if (currentPath === '/' || currentPath === '/home') {
+    if (currentPath === '/' || currentPath === '/home/') {
         document.querySelector('.row-basti-home').classList.add('active');
     }
-    if (currentPath === '/analyses' || currentPath === '/home/analyses') {
+    if (currentPath === '/analyses' || currentPath === '/home/analyses/') {
         document.querySelector('.row-basti-analyse').classList.add('active');
     }
     if (currentPath === '/create-programm/' || currentPath === '/home/create-programm/') {
@@ -623,7 +623,7 @@
     if (currentPath === '/settings/' || currentPath === '/home/settings') {
         document.querySelector('.row-basti-settings').classList.add('active');
     }
-    if (currentPath.startsWith('/chats/')) {
+    if (currentPath.startsWith('/chats/')||currentPath.startsWith('home/chats/')) {
         document.querySelector('.row-basti-chats').classList.add('active');
     }
     if (currentPath === '/new-exercise/' || currentPath === '/home/new-exercise') {

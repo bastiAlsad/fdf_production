@@ -6,6 +6,32 @@
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+     #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     .customer-item {
         height: 90px;
         background-color: white;
@@ -21,7 +47,7 @@
         justify-content: space-around;
         align-items: center;
         align-content: space-around;
-        
+
     }
 
     #video-container {
@@ -173,6 +199,17 @@
             height: 200px;
         }
 
+        .button {
+            background: none;
+            border-radius: 25px;
+            color: rgb(242, 75, 19);
+            border: 2px solid rgb(242, 75, 19);
+            padding-top: 7px;
+            padding-bottom: 7px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
 
     }
 </style>
@@ -211,7 +248,7 @@
     </div>
 
 
-    <div class="calender-container">
+    <div class="calender-container" style="align-content: center;">
         <div
             style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; justify-items: center; ">
             <button class="text-button-mr" style="font-size: normal; margin: 20px;"
@@ -225,6 +262,25 @@
             <button class="text-button-ur" style="font-size: normal; margin: 20px;"
                 onclick="urSelectedSetzen('{{users.id}}')">
                 3x wöchentlich
+        </div>
+        <div style="display: flex; flex-direction: column; margin-left: 25px;">
+            <label for="illness">Wählen Sie ein Programm für diese Woche:</label>
+            <select id="illness" name="illness">
+                {% for programm in programm_list %}
+                <option value="{{ programm }}">{{ programm }}</option>
+                {% endfor %}
+            </select>
+            <!-- Verstecktes Eingabefeld für das ausgewählte Attribut "illness" -->
+            <input type="hidden" name="selected_illness" id="selected_illness">
+            <div style="height: 30px;"></div>
+            <button style="background: none;
+            border-radius: 25px;
+            color: rgb(242, 75, 19);
+            border: 2px solid rgb(242, 75, 19);
+            padding-top: 7px;
+            padding-bottom: 7px;
+            padding-left: 12px;
+            padding-right: 12px;" class="button" onclick="submitSelect('{{users.id}}')">Übungen updaten</button>
         </div>
     </div>
 </div>
@@ -279,7 +335,8 @@
 
             </div>
             <div style="padding-left: 30px; height: 100px; width: 100px;">
-                <img src="{%static exercises.imagePath %}" alt="" style="height: 100px; width: 100px;">
+                <img src="https://bastialsad.github.io/laxout_development/{%static exercises.imagePath %}" alt=""
+                    style="height: 100px; width: 100px;">
             </div>
             <div style="padding-right: 30px; width: 40vw;">
 
@@ -389,13 +446,13 @@
             Kursteilnehmer:
         </h3>
         <h3 style="color:rgb(242, 75, 19);;">
-            {{customer_count}} 
+            {{customer_count}}
         </h3>
         <button class="action-button" onclick="addCustomer()">
             Hinzufügen
         </button>
     </div>
-    
+
     {% for customer in related_customers%}
 
 
@@ -419,7 +476,7 @@
             {{customer.creation_date}}
         </h5>
 
-        
+
 
 
     </div>
@@ -461,7 +518,61 @@
 
 <script>
 
-    function addCustomer(){
+    function showLoadingScreen() {
+        var loadingScreen = document.createElement('div');
+        loadingScreen.id = 'loading-screen';
+        loadingScreen.style.position = 'fixed';
+        loadingScreen.style.top = '0';
+        loadingScreen.style.left = '0';
+        loadingScreen.style.width = '100%';
+        loadingScreen.style.height = '100%';
+        loadingScreen.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        loadingScreen.style.display = 'flex';
+        loadingScreen.style.alignItems = 'center';
+        loadingScreen.style.justifyContent = 'center';
+        loadingScreen.style.zIndex = '1000';
+        loadingScreen.innerHTML = '<div style="color: white; font-size: 20px;">Verarbeiten...</div>';
+        document.body.appendChild(loadingScreen);
+    }
+
+    // Funktion, um den Ladebildschirm zu verstecken
+    function hideLoadingScreen() {
+        var loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            document.body.removeChild(loadingScreen);
+        }
+    }
+
+    function submitSelect(id) {
+        showLoadingScreen();
+        var illnessDropdown = document.getElementById("illness");
+        // Aktualisiere das versteckte Eingabefeld mit dem Wert des Dropdown-Menüs
+        var select = illnessDropdown.value;
+        let formedData = new FormData();
+        let csrf_token = "{{csrf_token}}";
+        formedData.append("csrfmiddlewaretoken", csrf_token);
+        formedData.append("select", select);
+        formedData.append("id", id);
+        fetch("post-select/", {
+            headers: {
+                'X-CSRFToken': csrf_token,
+            },
+            method: "POST",
+            body: formedData
+        }).then(response => {
+            // Verstecke den Ladebildschirm
+            hideLoadingScreen();
+            // Lade die Seite neu
+            window.location.reload();
+        }).catch(error => {
+            // Verstecke den Ladebildschirm auch im Fehlerfall
+            hideLoadingScreen();
+            console.error('Error:', error);
+        });
+
+    }
+
+    function addCustomer() {
         window.location.href = "create-customer/";
     }
 
@@ -700,6 +811,7 @@
     }
 
     function moveUp(exerciseId) {
+        showLoadingScreen();
         let formedData = new FormData();
         let csrf_token = "{{csrf_token}}";
         formedData.append("csrfmiddlewaretoken", csrf_token);
@@ -712,11 +824,20 @@
             },
             body: formedData
 
+        }).then(response => {
+            // Verstecke den Ladebildschirm
+            hideLoadingScreen();
+            // Lade die Seite neu
+            window.location.reload();
+        }).catch(error => {
+            // Verstecke den Ladebildschirm auch im Fehlerfall
+            hideLoadingScreen();
+            console.error('Error:', error);
         });
-        window.location.reload();
     }
 
     function moveDown(exerciseId) {
+        showLoadingScreen();
         let formedData = new FormData();
         let csrf_token = "{{csrf_token}}";
         formedData.append("csrfmiddlewaretoken", csrf_token);
@@ -728,8 +849,16 @@
                 'X-CSRFToken': csrf_token
             },
             body: formedData  // Füge den body mit den Daten hinzu
+        }).then(response => {
+            // Verstecke den Ladebildschirm
+            hideLoadingScreen();
+            // Lade die Seite neu
+            window.location.reload();
+        }).catch(error => {
+            // Verstecke den Ladebildschirm auch im Fehlerfall
+            hideLoadingScreen();
+            console.error('Error:', error);
         });
-        window.location.reload();
     }
 
 
@@ -800,6 +929,7 @@
     }
 
     function deleteWorkout(workoutId, userId) {
+        showLoadingScreen();
         let formedData = new FormData();
         let token = "{{csrf_token}}";
         formedData.append("csrfmiddlewaretoken", token);
@@ -811,8 +941,16 @@
             },
             method: "POST",
             body: formedData
+        }).then(response => {
+            // Verstecke den Ladebildschirm
+            hideLoadingScreen();
+            // Lade die Seite neu
+            window.location.reload();
+        }).catch(error => {
+            // Verstecke den Ladebildschirm auch im Fehlerfall
+            hideLoadingScreen();
+            console.error('Error:', error);
         });
-        window.location.reload();
     }
 
 
